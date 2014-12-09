@@ -1,0 +1,83 @@
+GoLangPhilly - Creating an protected website with Go and AppEngine
+Go with Appengine
+13 Nov 2013
+Tags: golang, intranet, go, AppEngine
+
+Darrel Herbst
+DramaFever
+dherbst@gmail.com
+http://github.com/dherbst
+@darrelherbst
+
+* A Simple (protected) Website in Go on Google AppEngine
+Your mission: Create a static website, say for the employee handbook, that has your Google Apps domain authentication.
+
+You think:
+	I’ll do it in Go!
+
+.image 01cover.png
+
+* Google AppEngine to the rescue
+
+It’s free!
+
+.link https://developers.google.com/appengine/docs/quotas#Requests
+
+Outgoing/Incoming 1GB/day (including static files)
+
+* How do I set it up?
+
+.link https://appengine.google.com/
+
+Create an app, fill in the "Restricted to the following Google Apps domain"
+
+OR use the "Open to all users with an OpenID provider" and check the domain yourself
+
+- you probably want to do this if you want to whitelist other people outside your domain
+
+.image 02setup.png
+
+* Put your files into your app
+
+Download the Go AppEngine runtime
+
+.link https://developers.google.com/appengine/downloads
+
+Files:
+
+- app.yaml -- defines the app
+- employee.go -- handles redirection to index.html
+- web -- a folder that holds all the files
+
+.image 03tree.png
+
+* app.yaml
+
+Define your application, and set the static files and you need one url map to Go code.
+
+    application: dramafeveremployee
+    version: 1
+    runtime: go
+    api_version: go1
+    handlers:
+    - url: /(.+)
+      login: required
+      static_files: web/\1
+      upload: web/(.*)
+    - url: /
+      script: _go_app
+      login: required
+
+* employee.go
+
+Here, set up a handler that takes everyone to index.html, because that's the only html file we have.
+
+.code employee.go
+
+* You can't get to the website without logging in
+
+AppEngine takes care of this for you if you select the "domain only"
+
+Otherwise you can verify in your `HandlerFunc` that you have a logged in user.
+
+.image 04auth.png
